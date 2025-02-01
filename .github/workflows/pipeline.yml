@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Bump version and push tag
         if: ${{env.SKIP_CONDITION == 'true'}}
-          run: echo 'this step is skipped
+          run: echo 'this step is skipped'
         if: ${{env.SKIP_CONDITION == 'false'}}
           run: echo 'this step is NOT skipped'
         # Only run this step if the branch is main
