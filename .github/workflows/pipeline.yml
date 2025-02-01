@@ -34,3 +34,12 @@ jobs:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           curl "$deploy_url"
+  tag_release:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Bump version and push tag
+        # Only run this step if the branch is main
+        if: github.ref == 'refs/heads/main'
+        uses: anothrNick/github-tag-action@1.71.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
