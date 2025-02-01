@@ -7,6 +7,13 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize]
+
+env:
+  COMMIT_MESSAGES: ${{ join(toJson(github.event.commits.*.message) , ', ') }}
+
+  # the below will be 'true'
+  SKIP_CONDITION: ${{ contains(${{COMMIT_MESSAGES}}, '#skip') }}
+
 jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
@@ -38,6 +45,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Bump version and push tag
+        if: ${{env.SKIP_CONDITION == 'true'}}
+          run: echo 'this step is skipped
+        if: ${{env.SKIP_CONDITION == 'false'}}
+          run: echo 'this step is NOT skipped'
         # Only run this step if the branch is main
         if: github.ref == 'refs/heads/main'
         uses: anothrNick/github-tag-action@1.71.0
