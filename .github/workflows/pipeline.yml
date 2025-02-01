@@ -7,6 +7,11 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize]
+
+env:
+  # the below will be 'true'
+  SKIP_CONDITION: ${{ contains(join(toJson(github.event.commits.*.message) , ', '), '#skip') }}
+
 jobs:
   simple_deployment_pipeline:
     runs-on: ubuntu-20.04
@@ -34,3 +39,19 @@ jobs:
           deploy_url: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
         run: |
           curl "$deploy_url"
+  tag_release:
+    runs-on: ubuntu-20.04
+    if: ${{ github.env.SKIP_CONDITION == 'false'}}
+    steps:
+      - name: stepskip test
+        if: ${{env.SKIP_CONDITION == 'true'}}
+        run: echo 'this step is skipped'
+      - name: stepnotskip test
+        if: ${{env.SKIP_CONDITION == 'false'}}
+        run: echo 'this step is NOT skipped'
+      - name: Bump version and push tag
+        # Only run this step if the branch is main
+        if: github.ref == 'refs/heads/main'
+        uses: anothrNick/github-tag-action@f278d49d30cdd8775cc3e7dd00b5ee11686ee297
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
